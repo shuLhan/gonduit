@@ -62,16 +62,6 @@ type Project struct {
 }
 
 //
-// ProjectSearchResult contain result from querying project data.
-//
-type ProjectSearchResult struct {
-	Data   []Project       `json:"data"`
-	Maps   json.RawMessage `json:"maps"`
-	Query  json.RawMessage `json:"query"`
-	Cursor Cursor          `json:"cursor"`
-}
-
-//
 // ToRequestValues will convert project attribute to URL values.
 //
 func (pr *Project) ToRequestValues(cl *Client) {
@@ -124,30 +114,38 @@ func (pr *Project) Create(cl *Client) (e error) {
 // SearchByName will get the project metadata using project `Name` and save it
 // to current project instance.
 //
-func (pr *Project) SearchByName(cl *Client) (e error) {
+func (cl *Client) ProjectSearchByName(name string) (
+	projects []Project,
+	e error,
+) {
 	cl.NewRequest(APIProjectSearch)
 
-	cl.request.AddConstraint("name", pr.Fields.Name)
+	cl.request.AddConstraint("name", name)
 
 	e = cl.Post()
-
 	if e != nil {
-		return e
+		return nil, e
 	}
 
 	if cl.respon.ErrCode != "" {
-		return errors.New(cl.respon.ErrCode)
+		return nil, errors.New(cl.respon.ErrCode)
 	}
 
 	// Decode the result
-	result := ProjectSearchResult{}
+	result := SearchResult{}
 	e = json.Unmarshal(cl.respon.Result, &result)
-
 	if e != nil {
-		return e
+		return nil, e
 	}
 
-	fmt.Printf("RESULT << %+v\n", result)
+	e = json.Unmarshal(result.Data, &projects)
+	if e != nil {
+		return nil, e
+	}
 
-	return nil
+	for x, project := range projects {
+		fmt.Printf("PROJET %d << %+v\n", x, project)
+	}
+
+	return projects, nil
 }

@@ -32,13 +32,7 @@ func TestProjectCreate(t *testing.T) {
 func TestProjectSearchByName(t *testing.T) {
 	cl := gonduit.NewClient(CONDUIT_URL, CONDUIT_TOKEN)
 
-	project := gonduit.Project{
-		Fields: gonduit.ProjectFields{
-			Name: "Test",
-		},
-	}
-
-	e := project.SearchByName(cl)
+	_, e := cl.ProjectSearchByName("Test")
 
 	if e != nil {
 		t.Fatal(e)
