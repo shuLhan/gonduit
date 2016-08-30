@@ -16,4 +16,10 @@ const (
 
 	// APIProjectEdit define the API to create or edit project.
 	APIProjectEdit = "api/project.edit"
+
+	// APITaskSearch define the API to search task.
+	APITaskSearch = "api/maniphest.search"
+
+	// APITaskEdit define the API to create or edit task.
+	APITaskEdit = "api/maniphest.edit"
 )

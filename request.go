@@ -45,6 +45,13 @@ func (req *Request) EncodeValues() string {
 }
 
 //
+// Add will add parameter using key `k` and value `v`.
+//
+func (req *Request) Add(k, v string) {
+	req.v.Add(k, v)
+}
+
+//
 // AddParam will add parameter to be sent on request object.
 //
 func (req *Request) AddParam(t, v string) {
@@ -78,6 +85,19 @@ func (req *Request) AddParams(t string, vals []string) {
 func (req *Request) AddConstraint(name, value string) {
 	req.str = fmt.Sprintf("constraints[%s]", name)
 	req.v.Add(req.str, value)
+}
+
+//
+// AddConstraints will add list of parameter constraint for API required in
+// search.
+//
+func (req *Request) AddConstraints(name string, vals []string) {
+	for x, v := range vals {
+		req.str = fmt.Sprintf("constraints[%s][%d]",
+			name, x)
+
+		req.v.Add(req.str, v)
+	}
 }
 
 //

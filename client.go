@@ -5,6 +5,7 @@
 package gonduit
 
 import (
+	"encoding/json"
 	"net/http"
 )
 
@@ -28,6 +29,16 @@ type Cursor struct {
 	After  string `json:"after"`
 	Before string `json:"before"`
 	Order  string `json:"order"`
+}
+
+//
+// SearchResult contain generic result from querying to server.
+//
+type SearchResult struct {
+	Data   json.RawMessage `json:"data"`
+	Maps   json.RawMessage `json:"maps"`
+	Query  json.RawMessage `json:"query"`
+	Cursor Cursor          `json:"cursor"`
 }
 
 //
