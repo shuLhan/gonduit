@@ -107,8 +107,10 @@ func (req *Request) Post(cl *Client) (*http.Response, error) {
 	var httpReq *http.Request
 	var e error
 
-	fmt.Printf("REQ  >> %v\n", req.api)
-	fmt.Printf("BODY >> %v\n", req.v.Encode())
+	if DEBUG >= 2 {
+		fmt.Printf("[gonduit] Request.Post.API >> %v\n", req.api)
+		fmt.Printf("[gonduit] Request.Post     >> %v\n", req.v.Encode())
+	}
 
 	req.body.Reset(req.v.Encode())
 

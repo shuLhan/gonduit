@@ -51,7 +51,9 @@ type Response struct {
 // it with HTTP response `httpResp` returned by `Request.Post`.
 //
 func (cl *Client) NewResponse(httpResp *http.Response) (e error) {
-	fmt.Printf("RESP << %+v\n", httpResp)
+	if DEBUG >= 3 {
+		fmt.Printf("[gonduit] Response.HTTP << %+v\n", httpResp)
+	}
 
 	cl.respon = &Response{}
 
@@ -61,7 +63,9 @@ func (cl *Client) NewResponse(httpResp *http.Response) (e error) {
 		return e
 	}
 
-	fmt.Printf("BODY << %s\n", cl.respon.body)
+	if DEBUG >= 2 {
+		fmt.Printf("[gonduit] Response.BODY << %s\n", cl.respon.body)
+	}
 
 	e = json.Unmarshal(cl.respon.body, &cl.respon)
 
@@ -86,7 +90,9 @@ func (resp *Response) DecodeResult() (rr *ResponseResult, e error) {
 		return nil, e
 	}
 
-	fmt.Printf("RESULT << %+v\n", rr)
+	if DEBUG >= 2 {
+		fmt.Printf("[gonduit] Response.DecodeResult << %+v\n", rr)
+	}
 
 	return rr, nil
 }
