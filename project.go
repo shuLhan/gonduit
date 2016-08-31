@@ -111,7 +111,7 @@ func (pr *Project) Create(cl *Client) (e error) {
 }
 
 //
-// SearchByName will get the project metadata using project `Name` and save it
+// ProjectSearchByName will get the project metadata using project `Name` and save it
 // to current project instance.
 //
 func (cl *Client) ProjectSearchByName(name string) (
