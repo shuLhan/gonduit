@@ -69,17 +69,97 @@ type Task struct {
 
 	// Projects contain list of projects that this task belong to.
 	Projects []string
+
+	// Comments contain list of comment in task.
+	Comments []string
 }
 
 //
-// TaskSearchByName will search the task by their status and name.
-// Valid status values are: "all", "open"
+// SetName will set task name (or title) to `s`
 //
-func (cl *Client) TaskSearchByName(status, name string) (tasks []Task, e error) {
+func (t *Task) SetName(s string) {
+	t.Fields.Name = s
+}
+
+//
+// SetDescription will set task description to `s`
+//
+func (t *Task) SetDescription(s string) {
+	t.Fields.Description = s
+}
+
+//
+// SetOwner will set task owner to `s`.
+//
+func (t *Task) SetOwner(s string) {
+	t.Fields.Owner = s
+}
+
+//
+// SetStatus will set task status to `s`.
+//
+func (t *Task) SetStatus(s string) {
+	t.Fields.Status.Value = s
+}
+
+//
+// SetPriority will set task priority to `s`.
+//
+func (t *Task) SetPriority(v int) {
+	t.Fields.Priority.Value = v
+}
+
+//
+// AddProject will assign project `s` to task only if `s` is not already in
+// list.
+//
+func (t *Task) AddProject(s string) {
+	for _, p := range t.Projects {
+		if p == s {
+			return
+		}
+	}
+	t.Projects = append(t.Projects, s)
+}
+
+//
+// AddComment will add new comment to task only if `s` is not already in
+// list.
+//
+func (t *Task) AddComment(s string) {
+	for _, p := range t.Comments {
+		if p == s {
+			return
+		}
+	}
+	t.Comments = append(t.Comments, s)
+}
+
+//
+// GetName will return task name.
+//
+func (t *Task) GetName() string {
+	return t.Fields.Name
+}
+
+//
+// TaskSearch will search the task by their status, name, and projects.
+// Valid status values are: "all", "open".
+//
+func (cl *Client) TaskSearch(status, name string, projects []string) (
+	tasks []Task,
+	e error,
+) {
 	cl.NewRequest(APITaskSearch)
 
 	cl.request.Add("queryKey", status)
 	cl.request.AddConstraint("fulltext", name)
+
+	if len(projects) > 0 {
+		projects = ConvertToTags(projects)
+
+		cl.request.AddConstraints("projects", projects)
+	}
 
 	e = cl.Post()
 
@@ -106,34 +186,53 @@ func (cl *Client) TaskSearchByName(status, name string) (tasks []Task, e error) 
 	}
 
 	for x, task := range tasks {
-		fmt.Printf("TASK %d << %+v\n", x, task)
+		if DEBUG >= 1 {
+			fmt.Printf("[gonduit] TaskSearch %d << %+v\n", x,
+				task)
+		}
 	}
 
 	return tasks, nil
 }
 
 //
+// TaskIsExist will return true if after searching task with `status`, `name`,
+// and list of `projects` it return non nil or empty tasks; otherwise it return
+// false.
+//
+func (cl *Client) TaskIsExist(status, name string, projects []string) bool {
+	tasks, e := cl.TaskSearch(status, name, projects)
+	if e != nil || tasks == nil || len(tasks) == 0 {
+		return false
+	}
+	return true
+}
+
+//
 // setParams will set the parameter required to create task based on information
 // on `task` object.
 //
-func (task *Task) setParams(cl *Client) {
-	cl.request.AddParam("title", task.Fields.Name)
+func (t *Task) setParams(cl *Client) {
+	cl.request.AddParam("title", t.Fields.Name)
+	cl.request.AddParam("priority",
+		strconv.Itoa(t.Fields.Priority.Value))
 
-	if task.Fields.Description != "" {
-		cl.request.AddParam("description", task.Fields.Description)
+	if t.Fields.Description != "" {
+		cl.request.AddParam("description", t.Fields.Description)
 	}
-	if task.Fields.Owner != "" {
-		cl.request.AddParam("owner", task.Fields.Owner)
+	if t.Fields.Owner != "" {
+		cl.request.AddParam("owner", t.Fields.Owner)
 	}
-	if task.Fields.Priority.Value != 0 {
-		cl.request.AddParam("priority",
-			strconv.Itoa(task.Fields.Priority.Value))
+	if t.Fields.Status.Value != "" {
+		cl.request.AddParam("status", t.Fields.Status.Value)
 	}
-	if task.Fields.Status.Value != "" {
-		cl.request.AddParam("status", task.Fields.Status.Value)
+	if len(t.Projects) > 0 {
+		cl.request.AddParams("projects.add", t.Projects)
 	}
-	if len(task.Projects) > 0 {
-		cl.request.AddParams("projects.add", task.Projects)
+	if len(t.Comments) > 0 {
+		for _, c := range t.Comments {
+			cl.request.AddParam("comment", c)
+		}
 	}
 }
 
@@ -149,10 +248,10 @@ func (task *Task) setParams(cl *Client) {
 // - task.Fields.Priority.Value
 // - task.Fields.Status.Value
 //
-func (task *Task) Create(cl *Client) (e error) {
+func (t *Task) Create(cl *Client) (e error) {
 	cl.NewRequest(APITaskEdit)
 
-	task.setParams(cl)
+	t.setParams(cl)
 
 	e = cl.Post()
 
@@ -161,15 +260,17 @@ func (task *Task) Create(cl *Client) (e error) {
 	}
 
 	if cl.respon.ErrCode != "" {
-		return errors.New(cl.respon.ErrCode)
+		return errors.New(cl.respon.ErrInfo)
 	}
 
 	rr, e := cl.respon.DecodeResult()
 
-	task.ID = rr.Object.ID
-	task.Phid = rr.Object.Phid
+	t.ID = rr.Object.ID
+	t.Phid = rr.Object.Phid
 
-	fmt.Printf("TASK CREATED << %+v\n", task)
+	if DEBUG >= 1 {
+		fmt.Printf("[gonduit] Task.Create << %+v\n", t)
+	}
 
 	return nil
 }
