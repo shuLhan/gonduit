@@ -62,6 +62,34 @@ type Project struct {
 }
 
 //
+// SetName will the the project name to `name`.
+//
+func (pr *Project) SetName(s string) {
+	pr.Fields.Name = s
+}
+
+//
+// SetPhid will set project PHID value to `s`.
+//
+func (pr *Project) SetPhid(s string) {
+	pr.Phid = s
+}
+
+//
+// GetName will return project name.
+//
+func (pr *Project) GetName() string {
+	return pr.Fields.Name
+}
+
+//
+// GetPhid will return project PHID.
+//
+func (pr *Project) GetPhid() string {
+	return pr.Phid
+}
+
+//
 // ToRequestValues will convert project attribute to URL values.
 //
 func (pr *Project) ToRequestValues(cl *Client) {
@@ -97,7 +125,7 @@ func (pr *Project) Create(cl *Client) (e error) {
 	}
 
 	if cl.respon.ErrCode != "" {
-		return errors.New(cl.respon.ErrCode)
+		return errors.New(cl.respon.ErrInfo)
 	}
 
 	rr, e := cl.respon.DecodeResult()
@@ -105,14 +133,17 @@ func (pr *Project) Create(cl *Client) (e error) {
 	pr.ID = rr.Object.ID
 	pr.Phid = rr.Object.Phid
 
-	fmt.Printf("PROJECT << %+v\n", pr)
+	if DEBUG >= 1 {
+		fmt.Printf("[gonduit] Project.Create << %+v\n", pr)
+	}
 
 	return nil
 }
 
 //
-// ProjectSearchByName will get the project metadata using project `Name` and save it
-// to current project instance.
+// ProjectSearchByName will return list of project instance where their name is
+// matched with `name`. If no match or error then it will return empty list with
+// error value/message.
 //
 func (cl *Client) ProjectSearchByName(name string) (
 	projects []Project,
@@ -124,28 +155,31 @@ func (cl *Client) ProjectSearchByName(name string) (
 
 	e = cl.Post()
 	if e != nil {
-		return nil, e
+		return
 	}
 
 	if cl.respon.ErrCode != "" {
-		return nil, errors.New(cl.respon.ErrCode)
+		return projects, errors.New(cl.respon.ErrInfo)
 	}
 
 	// Decode the result
 	result := SearchResult{}
 	e = json.Unmarshal(cl.respon.Result, &result)
 	if e != nil {
-		return nil, e
+		return
 	}
 
 	e = json.Unmarshal(result.Data, &projects)
 	if e != nil {
-		return nil, e
+		return
 	}
 
 	for x, project := range projects {
-		fmt.Printf("PROJET %d << %+v\n", x, project)
+		if DEBUG >= 1 {
+			fmt.Printf("[gonduit] ProjectSearchByName %d<< %+v\n",
+				x, project)
+		}
 	}
 
-	return projects, nil
+	return
 }
