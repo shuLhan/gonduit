@@ -42,7 +42,8 @@ type SearchResult struct {
 }
 
 //
-// NewClient will create new client for connecting conduit API.
+// NewClient will create new HTTP client for connecting to conduit API server at
+// `URL` using user `token`.
 //
 func NewClient(URL, token string) *Client {
 	cl := &Client{
