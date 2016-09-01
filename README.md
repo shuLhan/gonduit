@@ -10,9 +10,23 @@
 ## Features
 
 * Project
-  * Create
-  * Search
+  * Create (`project.edit`): create new project
+  * Search (`project.search`): search specific project
+
+* Task
+  * Create (`maniphest.edit`): create new task
+  * Search (`maniphest.search`): search specific task by status, name, and
+    projects
+  * IsExist: check wether task is already exist or not
 
 For examples, see the `*_test` files.
+
+## Testing
+
+To run test using your own Phabricator server,
+* set the environment `CONDUIT_URL` to your server URL; e.g.
+  `http://localhost/`, must with trailing slash, and
+* set the environment `CONDUIT_TOKEN`, that you can create at
+  `$CONDUIT_URL/settings/user/<username>page/apitokens/`.
 
 [1] https://secure.phabricator.com/conduit/

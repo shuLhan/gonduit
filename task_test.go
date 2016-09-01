@@ -7,12 +7,7 @@ package gonduit_test
 import (
 	"fmt"
 	"testing"
-
-	"github.com/shuLhan/gonduit"
 )
-
-var cl = gonduit.NewClient(CONDUIT_URL, CONDUIT_TOKEN)
-var task = gonduit.Task{}
 
 func TestTaskSearchByName(t *testing.T) {
 	_, e := cl.TaskSearch("open", "Task", []string{})

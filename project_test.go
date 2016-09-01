@@ -10,8 +10,6 @@ import (
 )
 
 func TestProjectCreate(t *testing.T) {
-	cl := gonduit.NewClient(CONDUIT_URL, CONDUIT_TOKEN)
-
 	project := gonduit.Project{
 		Fields: gonduit.ProjectFields{
 			Name: "Test",
@@ -30,9 +28,7 @@ func TestProjectCreate(t *testing.T) {
 }
 
 func TestProjectSearchByName(t *testing.T) {
-	cl := gonduit.NewClient(CONDUIT_URL, CONDUIT_TOKEN)
-
-	_, e := cl.ProjectSearchByName("Test")
+	_, e := cl.ProjectSearchByName("Proofn Dev/Ops")
 
 	if e != nil {
 		t.Fatal(e)
