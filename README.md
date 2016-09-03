@@ -19,14 +19,23 @@
     projects
   * IsExist: check wether task is already exist or not
 
+## Examples
+
 For examples, see the `*_test` files.
 
 ## Testing
 
 To run test using your own Phabricator server,
 * set the environment `CONDUIT_URL` to your server URL; e.g.
-  `http://localhost/`, must with trailing slash, and
-* set the environment `CONDUIT_TOKEN`, that you can create at
-  `$CONDUIT_URL/settings/user/<username>page/apitokens/`.
+  `http://localhost/` (must with trailing slash), and
+* set the environment `CONDUIT_TOKEN`, that you can create and get at
+  `$CONDUIT_URL/settings/user/<username>/page/apitokens/`.
+
+## License
+
+Copyright 2016 Muhammad Shulhan (ms@kilabit.info).
+All rights reserved.
+Use of this source code is governed by a BSD-style license that can be found
+in the LICENSE file.
 
 [1] https://secure.phabricator.com/conduit/
