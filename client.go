@@ -5,6 +5,7 @@
 package gonduit
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"net/http"
 )
@@ -45,7 +46,7 @@ type SearchResult struct {
 // NewClient will create new HTTP client for connecting to conduit API server at
 // `URL` using user `token`.
 //
-func NewClient(URL, token string) *Client {
+func NewClient(URL, token string, disableTls bool) *Client {
 	cl := &Client{
 		http:    nil,
 		url:     URL,
@@ -54,7 +55,15 @@ func NewClient(URL, token string) *Client {
 		respon:  nil,
 	}
 
-	cl.http = &http.Client{}
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: disableTls,
+		},
+	}
+
+	cl.http = &http.Client{
+		Transport: tr,
+	}
 
 	return cl
 }

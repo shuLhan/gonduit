@@ -32,7 +32,7 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
-	cl = gonduit.NewClient(gonduitURL, gonduitToken)
+	cl = gonduit.NewClient(gonduitURL, gonduitToken, true)
 	task = gonduit.Task{}
 
 	os.Exit(m.Run())
